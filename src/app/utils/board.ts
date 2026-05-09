@@ -1,4 +1,5 @@
 import {GameState, Position, Piece, PieceType, serializeBoard} from "@/app/types/chess";
+import {findKing, getGameStateStatus, isSquareAttacked} from "@/app/utils/moves";
 
 // helper functions for notation
 const getColName = (col: number) => String.fromCharCode('a'.charCodeAt(0) + col);
@@ -48,7 +49,7 @@ export const executeMove = (
     const isCapture = targetPiece !== null || isEnPassant;
     const isCastle = piece.type === 'king' && Math.abs(to.col - from.col) === 2;
 
-    const moveText = generateSAN(piece, from, to, isCapture, isCastle, promotion);
+    let moveText = generateSAN(piece, from, to, isCapture, isCastle, promotion);
 
     if (isEnPassant) {
         const captureRow = piece.color === 'white' ? to.row + 1 : to.row - 1;
@@ -81,14 +82,33 @@ export const executeMove = (
     const newHalfMoveClock = (isPawnMove || isCapture) ? 0 : state.halfMoveClock + 1;
     const newFullMoveNumber = state.turn === 'black' ? state.fullMoveNumber + 1 : state.fullMoveNumber;
 
-    return {
+    const opponentColor = state.turn === 'white' ? 'black' : 'white';
+
+    const provisionalState: GameState = {
         board: newBoard,
-        turn: state.turn === 'white' ? 'black' : 'white',
+        turn: opponentColor,
         castlingRights: newCastlingRights,
         enPassantTarget: newEnPassantTarget,
         halfMoveClock: newHalfMoveClock,
         fullMoveNumber: newFullMoveNumber,
         positionHistory: [...state.positionHistory, serializeBoard(newBoard)],
+        moveHistory: state.moveHistory
+    };
+
+    const kingPos = findKing(newBoard, opponentColor);
+    const inCheck = kingPos ? isSquareAttacked(newBoard, kingPos, state.turn) : false;
+
+    if (inCheck) {
+        const status = getGameStateStatus(provisionalState);
+        if (status === 'checkmate') {
+            moveText += '#';
+        } else {
+            moveText += '+';
+        }
+    }
+
+    return {
+        ...provisionalState,
         moveHistory: [...state.moveHistory, moveText]
     };
 };
