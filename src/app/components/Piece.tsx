@@ -6,6 +6,7 @@ interface PieceProps {
     piece: PieceType;
     row: number;
     col: number;
+    theme: string;
 }
 
 const getPieceFileName = (color: PieceType['color'], type: PieceType['type']) => {
@@ -23,8 +24,7 @@ const getPieceFileName = (color: PieceType['color'], type: PieceType['type']) =>
     return `${colorChar}${typeCharMap[type]}.svg`;
 };
 
-export default function Piece({ piece, row, col }: PieceProps) {
-    const theme = 'alpha';
+export default function Piece({ piece, row, col, theme }: PieceProps) {
     const fileName = getPieceFileName(piece.color, piece.type);
     const imageSrc = `/piece/${theme}/${fileName}`;
 

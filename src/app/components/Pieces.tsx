@@ -3,9 +3,10 @@ import Piece from "@/app/components/Piece";
 
 interface PiecesProps {
     board: BoardState;
+    theme: string;
 }
 
-export default function Pieces({board}: PiecesProps){
+export default function Pieces({board, theme}: PiecesProps){
     return(
         <div className="absolute inset-0 pointer-events-none">
             {board.map((row, rowIndex) =>
@@ -18,6 +19,7 @@ export default function Pieces({board}: PiecesProps){
                             piece={piece}
                             row={rowIndex}
                             col={colIndex}
+                            theme={theme}
                         />
                     );
                 })
