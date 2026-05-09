@@ -103,25 +103,38 @@ export default function ChessBoard() {
     };
 
     const finishMove = (newGameState: GameState, isCapture: boolean, isCastle: boolean = false) => {
+        const status = getGameStateStatus(newGameState);
+        const nextTurnColor = newGameState.turn;
+        const kingPos = findKing(newGameState.board, nextTurnColor);
+        const inCheck = kingPos && isSquareAttacked(newGameState.board, kingPos, nextTurnColor === 'white' ? 'black' : 'white');
+
+        if (status === 'checkmate') {
+            newGameState.moveHistory[newGameState.moveHistory.length - 1] += '#';
+        } else if (inCheck) {
+            newGameState.moveHistory[newGameState.moveHistory.length - 1] += '+';
+        }
+
         setGameState(newGameState);
 
-        const status = getGameStateStatus(newGameState);
-        if (status === 'checkmate') {
-            playSound('Checkmate');
-        } else {
-            const nextTurnColor = newGameState.turn;
-            const kingPos = findKing(newGameState.board, nextTurnColor);
-            const inCheck = kingPos && isSquareAttacked(newGameState.board, kingPos, nextTurnColor === 'white' ? 'black' : 'white');
+        switch (true) {
+            case status === 'checkmate':
+                playSound('Checkmate');
+                break;
 
-            if (inCheck) {
+            case inCheck:
                 playSound('Check');
-            } else if (isCapture) {
+                break;
+
+            case isCastle:
+                playSound('Castle');
+                break;
+
+            case isCapture:
                 playSound('Capture');
-            } else if (isCastle) {
-                playSound('Castle')
-            } else {
+                break;
+
+            default:
                 playSound('Move');
-            }
         }
     };
 
