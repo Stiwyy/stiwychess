@@ -4,6 +4,7 @@ export type PieceType = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king'
 export interface Piece {
     type: PieceType;
     color: Color;
+    id: string;
 }
 
 export type SquareState = Piece | null;
@@ -14,13 +15,15 @@ export const createInitialBoard = (): BoardState => {
         .fill(null)
         .map(() => Array(8).fill(null));
 
+    let idCounter = 0;
+
     const placePiece = (
         row: number,
         col: number,
         type: PieceType,
         color: Color
     ) => {
-        board[row][col] = { type, color };
+        board[row][col] = {id: `piece-${idCounter++}`, type, color };
     };
 
     const backRank: PieceType[] = [

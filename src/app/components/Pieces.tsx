@@ -15,7 +15,7 @@ export default function Pieces({board, theme}: PiecesProps){
 
                     return (
                         <Piece
-                            key={`piece-${piece.color}-${piece.type}-${rowIndex}-${colIndex}`}
+                            key={piece.id}
                             piece={piece}
                             row={rowIndex}
                             col={colIndex}
