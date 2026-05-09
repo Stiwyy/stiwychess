@@ -54,3 +54,8 @@ export interface Position {
     row: number;
     col: number;
 }
+
+export interface CastlingRights {
+    white: { kingside: boolean; queenside: boolean };
+    black: { kingside: boolean; queenside: boolean };
+}
