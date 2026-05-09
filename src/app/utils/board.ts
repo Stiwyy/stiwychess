@@ -1,9 +1,10 @@
-import { GameState, Position, Piece } from "@/app/types/chess";
+import { GameState, Position, Piece, PieceType } from "@/app/types/chess";
 
 export const executeMove = (
     state: GameState,
     from: Position,
-    to: Position
+    to: Position,
+    promotion?: PieceType
 ): GameState => {
     const newBoard = state.board.map(row => [...row]);
     const piece = newBoard[from.row][from.col];
@@ -32,7 +33,12 @@ export const executeMove = (
         newEnPassantTarget = { row: from.row + (piece.color === 'white' ? -1 : 1), col: from.col };
     }
 
-    newBoard[to.row][to.col] = piece;
+    if (promotion) {
+        newBoard[to.row][to.col] = { id: piece.id, type: promotion, color: piece.color };
+    } else {
+        newBoard[to.row][to.col] = piece;
+    }
+
     newBoard[from.row][from.col] = null;
 
     return {
