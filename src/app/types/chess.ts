@@ -65,13 +65,30 @@ export interface GameState {
     turn: Color;
     castlingRights: CastlingRights;
     enPassantTarget: Position | null;
+    halfMoveClock: number;
+    fullMoveNumber: number;
+    positionHistory: string[];
+    moveHistory: string[];
 }
-export const createInitialGameState = (): GameState => ({
-    board: createInitialBoard(),
-    turn: 'white',
-    castlingRights: {
-        white: { kingside: true, queenside: true },
-        black: { kingside: true, queenside: true }
-    },
-    enPassantTarget: null
-});
+
+// Turns board into a string
+export const serializeBoard = (board: BoardState): string => {
+    return board.map(row => row.map(p => p ? `${p.color[0]}${p.type[0]}` : '.').join(',')).join(';');
+};
+
+export const createInitialGameState = (): GameState => {
+    const initialBoard = createInitialBoard();
+    return {
+        board: createInitialBoard(),
+        turn: 'white',
+        castlingRights: {
+            white: {kingside: true, queenside: true},
+            black: {kingside: true, queenside: true}
+        },
+        enPassantTarget: null,
+        halfMoveClock: 0,
+        fullMoveNumber: 1,
+        positionHistory: [serializeBoard(initialBoard)],
+        moveHistory: []
+    }
+};
