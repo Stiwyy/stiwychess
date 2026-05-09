@@ -138,6 +138,14 @@ export default function ChessBoard() {
         }
     };
 
+    const groupedMoves = [];
+    for (let i = 0; i < gameState.moveHistory.length; i += 2) {
+        groupedMoves.push({
+            white: gameState.moveHistory[i],
+            black: gameState.moveHistory[i + 1] || ""
+        });
+    }
+
     return (
             <div className="w-full min-h-screen flex items-center justify-center relative">
                 <button
@@ -179,17 +187,17 @@ export default function ChessBoard() {
                     )}
 
                     {gameStatus !== 'active' && (
-                        <div
-                            className="absolute inset-0 z-40 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                            <div
-                                className="bg-gray-800 border border-gray-600 p-8 rounded-xl shadow-2xl text-center animate-in fade-in zoom-in duration-300">
+                        <div className="absolute inset-0 z-40 bg-black/70 flex items-center justify-center backdrop-blur-sm">
+                            <div className="bg-gray-800 border border-gray-600 p-8 rounded-xl shadow-2xl text-center">
                                 <h2 className="text-4xl font-bold text-white mb-2">
-                                    {gameStatus === 'checkmate' ? 'Checkmate!' : 'Stalemate'}
+                                    {gameStatus === 'checkmate' ? 'Checkmate!' : 'Draw'}
                                 </h2>
                                 <p className="text-gray-300 text-lg mb-6">
-                                    {gameStatus === 'checkmate'
-                                        ? `${gameState.turn === 'white' ? 'Black' : 'White'} wins the game.`
-                                        : "The game is a draw."}
+                                    {gameStatus === 'checkmate' && `${gameState.turn === 'white' ? 'Black' : 'White'} wins by Checkmate.`}
+                                    {gameStatus === 'stalemate' && "Game drawn by Stalemate."}
+                                    {gameStatus === 'draw_50' && "Game drawn by 50-move rule."}
+                                    {gameStatus === 'draw_repetition' && "Game drawn by 3-fold repetition."}
+                                    {gameStatus === 'draw_material' && "Game drawn by insufficient material."}
                                 </p>
                                 <button
                                     onClick={() => setGameState(createInitialGameState())}
@@ -200,6 +208,22 @@ export default function ChessBoard() {
                             </div>
                         </div>
                     )}
+                </div>
+
+                <div className="w-full md:w-64 h-64 md:h-[600px] flex flex-col overflow-hidden">
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                        {groupedMoves.length === 0 ? (
+                            <div className="text-gray-500 text-center mt-4 text-sm">No moves yet</div>
+                        ) : (
+                            groupedMoves.map((move, index) => (
+                                <div key={index} className="flex text-sm py-1 hover:bg-gray-800 rounded px-2">
+                                    <span className="w-8 text-gray-500 font-mono">{index + 1}.</span>
+                                    <span className="w-20 text-white font-medium">{move.white}</span>
+                                    <span className="w-20 text-gray-400">{move.black}</span>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
 
             <Settings
