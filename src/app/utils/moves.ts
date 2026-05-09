@@ -58,7 +58,7 @@ const getPawnMoves = (board: BoardState, from: Position, color: Color, enPassant
     return moves;
 };
 
-const getKingMoves = (state: GameState, from: Position, color: Color): Position[] => {
+const getKingMoves = (state: GameState, from: Position, color: Color, checkCastling: boolean = true): Position[] => {
     const moves: Position[] = [];
     const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
 
@@ -71,6 +71,8 @@ const getKingMoves = (state: GameState, from: Position, color: Color): Position[
         }
     }
 
+    if (!checkCastling) return moves;
+
     // Castling
     const rights = state.castlingRights[color];
     const row = color === 'white' ? 7 : 0;
@@ -79,7 +81,6 @@ const getKingMoves = (state: GameState, from: Position, color: Color): Position[
     if (isSquareAttacked(state.board, from, color === 'white' ? 'black' : 'white')) return moves;
 
     if (rights.kingside && !state.board[row][5] && !state.board[row][6]) {
-        // Ensure passing squares aren't attacked
         if (!isSquareAttacked(state.board, {row, col: 5}, color === 'white' ? 'black' : 'white')) {
             moves.push({ row, col: 6 });
         }
@@ -107,7 +108,7 @@ const getKnightMoves = (board: BoardState, from: Position, color: Color): Positi
     return moves;
 };
 
-export const getPseudoLegalMoves = (state: GameState, from: Position): Position[] => {
+export const getPseudoLegalMoves = (state: GameState, from: Position, ignoreCastling: boolean = false): Position[] => {
     const piece = state.board[from.row][from.col];
     if (!piece) return [];
 
@@ -119,7 +120,7 @@ export const getPseudoLegalMoves = (state: GameState, from: Position): Position[
 
     switch (piece.type) {
         case 'pawn': return getPawnMoves(board, from, color, state.enPassantTarget);
-        case 'king': return getKingMoves(state, from, color);
+        case 'king': return getKingMoves(state, from, color, !ignoreCastling);
         case 'knight': return getKnightMoves(board, from, color);
         case 'bishop': return getSlidingMoves(board, from, color, diagonalDirs);
         case 'rook': return getSlidingMoves(board, from, color, straightDirs);
@@ -215,7 +216,7 @@ export const isSquareAttacked = (board: BoardState, pos: Position, attackerColor
         for (let c = 0; c < 8; c++) {
             const piece = board[r][c];
             if (piece && piece.color === attackerColor) {
-                const moves = getPseudoLegalMoves(mockState, { row: r, col: c });
+                const moves = getPseudoLegalMoves(mockState, { row: r, col: c }, true);
                 if (moves.some(m => m.row === pos.row && m.col === pos.col)) {
                     return true;
                 }
