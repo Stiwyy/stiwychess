@@ -32,7 +32,7 @@ export default function Home() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         className="w-full bg-gray-800 text-white border border-gray-700 rounded p-3 focus:outline-none focus:border-blue-500"
-                        placeholder="e.g. Magnus"
+                        placeholder="username"
                     />
                 </div>
 

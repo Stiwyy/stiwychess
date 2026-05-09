@@ -233,7 +233,11 @@ export const isSquareAttacked = (board: BoardState, pos: Position, attackerColor
         castlingRights: {
             white: { kingside: false, queenside: false },
             black: { kingside: false, queenside: false }
-        }
+        },
+        halfMoveClock: 0,
+        fullMoveNumber: 1,
+        positionHistory: [],
+        moveHistory: []
     };
 
     for (let r = 0; r < 8; r++) {

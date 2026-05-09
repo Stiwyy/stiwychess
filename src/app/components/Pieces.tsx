@@ -4,9 +4,10 @@ import Piece from "@/app/components/Piece";
 interface PiecesProps {
     board: BoardState;
     theme: string;
+    isFlipped: boolean;
 }
 
-export default function Pieces({board, theme}: PiecesProps){
+export default function Pieces({board, theme, isFlipped}: PiecesProps){
     return(
         <div className="absolute inset-0 pointer-events-none">
             {board.map((row, rowIndex) =>
@@ -20,6 +21,7 @@ export default function Pieces({board, theme}: PiecesProps){
                             row={rowIndex}
                             col={colIndex}
                             theme={theme}
+                            isFlipped={isFlipped}
                         />
                     );
                 })
