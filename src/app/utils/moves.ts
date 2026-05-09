@@ -122,7 +122,7 @@ const findKing = (board: BoardState, color: Color): Position | null => {
 };
 
 export const isSquareAttacked = (board: BoardState, pos: Position, attackerColor: Color): boolean => {
-    // for every opponent piece, we check which squares are attacked.
+    // simulates every opponent piece, we check if a specific square is attacked.
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const piece = board[r][c];
