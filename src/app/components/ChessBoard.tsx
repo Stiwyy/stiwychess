@@ -7,7 +7,7 @@ import {BoardState, Color, createInitialBoard, Position} from "@/app/types/chess
 import Pieces from "@/app/components/Pieces";
 import Settings from "@/app/components/Settings";
 import {movePiece} from "@/app/utils/board";
-import { getPseudoLegalMoves } from "@/app/utils/moves";
+import { getLegalMoves } from "@/app/utils/moves";
 
 export default function ChessBoard() {
     const [board, setBoard] = useState<BoardState>(createInitialBoard());
@@ -24,7 +24,7 @@ export default function ChessBoard() {
             if (clickedPiece && clickedPiece.color === turn) {
                 const pos = { row, col };
                 setSelectedSquare(pos);
-                setLegalMoves(getPseudoLegalMoves(board, pos));
+                setLegalMoves(getLegalMoves(board, pos));
             } else if (!selectedSquare) {
                 setSelectedSquare(null);
                 setLegalMoves([]);
