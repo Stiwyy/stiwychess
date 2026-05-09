@@ -29,9 +29,9 @@ const SORT_ORDER = { pawn: 1, knight: 2, bishop: 3, rook: 4, queen: 5 };
 const TYPE_MAP: Record<string, string> = { queen: 'Q', rook: 'R', knight: 'N', bishop: 'B', pawn: 'P' };
 
 const getCapturedPiecesAndScore = (board: BoardState) => {
-    const counts = {
-        white: { pawn: 0, knight: 0, bishop: 0, rook: 0, queen: 0 },
-        black: { pawn: 0, knight: 0, bishop: 0, rook: 0, queen: 0 }
+    const counts: Record<'white' | 'black', Record<PieceType, number>> = {
+        white: { pawn: 0, knight: 0, bishop: 0, rook: 0, queen: 0, king: 0 },
+        black: { pawn: 0, knight: 0, bishop: 0, rook: 0, queen: 0, king: 0 }
     };
 
     board.forEach(row => row.forEach(p => {
@@ -42,20 +42,21 @@ const getCapturedPiecesAndScore = (board: BoardState) => {
     let whiteScore = 0;
     let blackScore = 0;
 
+    // 2. The loop safely ignores the king and calculates points correctly
     (['pawn', 'knight', 'bishop', 'rook', 'queen'] as PieceType[]).forEach(type => {
-        const wCap = INITIAL_COUNTS[type] - counts.white[type];
-        const bCap = INITIAL_COUNTS[type] - counts.black[type];
+        const wCap = INITIAL_COUNTS[type as keyof typeof INITIAL_COUNTS] - counts.white[type];
+        const bCap = INITIAL_COUNTS[type as keyof typeof INITIAL_COUNTS] - counts.black[type];
 
         for (let i = 0; i < wCap; i++) captured.white.push(type);
         for (let i = 0; i < bCap; i++) captured.black.push(type);
 
-        whiteScore += counts.white[type] * PIECE_VALUES[type];
-        blackScore += counts.black[type] * PIECE_VALUES[type];
+        whiteScore += counts.white[type] * PIECE_VALUES[type as keyof typeof PIECE_VALUES];
+        blackScore += counts.black[type] * PIECE_VALUES[type as keyof typeof PIECE_VALUES];
     });
 
     return {
-        capturedByWhite: captured.black.sort((a, b) => SORT_ORDER[a] - SORT_ORDER[b]),
-        capturedByBlack: captured.white.sort((a, b) => SORT_ORDER[a] - SORT_ORDER[b]),
+        capturedByWhite: captured.black.sort((a, b) => SORT_ORDER[a as keyof typeof SORT_ORDER] - SORT_ORDER[b as keyof typeof SORT_ORDER]),
+        capturedByBlack: captured.white.sort((a, b) => SORT_ORDER[a as keyof typeof SORT_ORDER] - SORT_ORDER[b as keyof typeof SORT_ORDER]),
         advantageWhite: Math.max(0, whiteScore - blackScore),
         advantageBlack: Math.max(0, blackScore - whiteScore)
     };
