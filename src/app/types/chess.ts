@@ -46,3 +46,8 @@ export const createInitialBoard = (): BoardState => {
 
     return board;
 };
+
+export interface Position {
+    row: number;
+    col: number;
+}

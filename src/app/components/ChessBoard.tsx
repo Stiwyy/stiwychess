@@ -3,14 +3,45 @@
 
 import Board from "@/app/components/Board";
 import {useState} from "react";
-import {BoardState, createInitialBoard} from "@/app/types/chess";
+import {BoardState, createInitialBoard, Position} from "@/app/types/chess";
 import Pieces from "@/app/components/Pieces";
 import Settings from "@/app/components/Settings";
+import {movePiece} from "@/app/utils/board";
 
 export default function ChessBoard() {
     const [board, setBoard] = useState<BoardState>(createInitialBoard());
     const [theme, setTheme] = useState<string>('alpha');
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
+
+    const handleSquareClick = (row: number, col:number) => {
+        if (!selectedSquare) {
+            if(board[row][col]) {
+                setSelectedSquare({ row, col });
+            }
+            return;
+        }
+
+
+        const { row: selectedRow, col: selectedCol } = selectedSquare;
+
+        if (selectedRow === row && selectedCol === col) {
+            setSelectedSquare(null);
+            return;
+        }
+
+        const clickedPiece = board[row][col];
+        const selectedPiece = board[selectedRow][selectedCol];
+
+        if (clickedPiece && selectedPiece && clickedPiece.color === selectedPiece.color) {
+            setSelectedSquare({ row, col });
+            return;
+        }
+
+        const newBoard = movePiece(board, selectedSquare, {row, col});
+        setBoard(newBoard);
+        setSelectedSquare(null);
+    };
 
     return (
         <div className="w-full min-h-screen flex items-center justify-center relative">
@@ -25,7 +56,7 @@ export default function ChessBoard() {
             </button>
 
         <div className="w-full max-w-2xl aspect-square relative border-2 border-gray-800 rounded shadow-lg overflow-hidden">
-            <Board/>
+            <Board selectedSquare={selectedSquare} onSquareClick={handleSquareClick}/>
             <Pieces board={board} theme={theme}/>
         </div>
             <Settings

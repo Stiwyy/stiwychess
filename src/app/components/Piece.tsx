@@ -30,7 +30,7 @@ export default function Piece({ piece, row, col, theme }: PieceProps) {
 
     return (
         <div
-            className="absolute flex items-center justify-center pointer-events-auto transition-all duration-300 ease-in-out select-none"
+            className="absolute flex items-center justify-center pointer-events-none transition-all duration-300 ease-in-out select-none"
             style={{
                 width: '12.5%',
                 height: '12.5%',
@@ -44,7 +44,7 @@ export default function Piece({ piece, row, col, theme }: PieceProps) {
                     alt={`${piece.color} ${piece.type}`}
                     fill
                     className="object-contain"
-                    draggable={true}
+                    draggable={false}
                     priority
                 />
             </div>
