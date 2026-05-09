@@ -59,3 +59,10 @@ export interface CastlingRights {
     white: { kingside: boolean; queenside: boolean };
     black: { kingside: boolean; queenside: boolean };
 }
+
+export interface GameState {
+    board: BoardState;
+    turn: Color;
+    castlingRights: CastlingRights;
+    enPassantTarget: Position | null;
+}
