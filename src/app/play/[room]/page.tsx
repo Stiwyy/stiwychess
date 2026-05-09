@@ -8,7 +8,6 @@ export default function PlayRoom({ params }: { params: Promise<{ room: string }>
     const resolvedParams = use(params);
     const room = resolvedParams.room;
 
-
     const searchParams = useSearchParams();
     const playerName = searchParams.get("name") || "Guest";
     const playerColor = (searchParams.get("color") as "white" | "black") || "white";
@@ -21,7 +20,7 @@ export default function PlayRoom({ params }: { params: Promise<{ room: string }>
             </div>
 
             <div className="flex-1 w-full flex items-center justify-center">
-                <ChessBoard room={room} playerColor={playerColor} />
+                <ChessBoard room={room} playerColor={playerColor} playerName={playerName} />
             </div>
         </div>
     );
