@@ -1,30 +1,30 @@
 "use client";
 
-
 import Board from "@/app/components/Board";
-import {useState} from "react";
-import {BoardState, Color, createInitialBoard, Position} from "@/app/types/chess";
+import { useState } from "react";
+import { GameState, createInitialGameState, Position } from "@/app/types/chess";
 import Pieces from "@/app/components/Pieces";
 import Settings from "@/app/components/Settings";
-import {movePiece} from "@/app/utils/board";
+import { executeMove } from "@/app/utils/board";
 import { getLegalMoves } from "@/app/utils/moves";
 
 export default function ChessBoard() {
-    const [board, setBoard] = useState<BoardState>(createInitialBoard());
+    const [gameState, setGameState] = useState<GameState>(createInitialGameState());
+
     const [theme, setTheme] = useState<string>('alpha');
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
-    const [turn, setTurn] = useState<Color>('white');
     const [legalMoves, setLegalMoves] = useState<Position[]>([]);
 
     const handleSquareClick = (row: number, col: number) => {
-        const clickedPiece = board[row][col];
+        const clickedPiece = gameState.board[row][col];
+        const isCurrentTurn = clickedPiece && clickedPiece.color === gameState.turn;
 
-        if (!selectedSquare || (clickedPiece && clickedPiece.color === turn)) {
-            if (clickedPiece && clickedPiece.color === turn) {
+        if (!selectedSquare || isCurrentTurn) {
+            if (isCurrentTurn) {
                 const pos = { row, col };
                 setSelectedSquare(pos);
-                setLegalMoves(getLegalMoves(board, pos));
+                setLegalMoves(getLegalMoves(gameState, pos));
             } else if (!selectedSquare) {
                 setSelectedSquare(null);
                 setLegalMoves([]);
@@ -35,11 +35,11 @@ export default function ChessBoard() {
         const isLegalMove = legalMoves.some(m => m.row === row && m.col === col);
 
         if (isLegalMove) {
-            const newBoard = movePiece(board, selectedSquare, { row, col });
-            setBoard(newBoard);
-            setTurn(turn === 'white' ? 'black' : 'white');
+            const newGameState = executeMove(gameState, selectedSquare, { row, col });
+            setGameState(newGameState);
             setSelectedSquare(null);
             setLegalMoves([]);
+
         } else {
             setSelectedSquare(null);
             setLegalMoves([]);
@@ -58,10 +58,11 @@ export default function ChessBoard() {
                 </svg>
             </button>
 
-        <div className="w-full max-w-2xl aspect-square relative border-2 border-gray-800 rounded shadow-lg overflow-hidden">
-            <Board selectedSquare={selectedSquare} legalMoves={legalMoves} onSquareClick={handleSquareClick}/>
-            <Pieces board={board} theme={theme}/>
-        </div>
+            <div className="w-full max-w-2xl aspect-square relative border-2 border-gray-800 rounded shadow-lg overflow-hidden">
+                <Board selectedSquare={selectedSquare} legalMoves={legalMoves} onSquareClick={handleSquareClick}/>
+                <Pieces board={gameState.board} theme={theme}/>
+            </div>
+
             <Settings
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
@@ -69,6 +70,5 @@ export default function ChessBoard() {
                 onThemeChange={setTheme}
             />
         </div>
-
-    )
+    );
 }

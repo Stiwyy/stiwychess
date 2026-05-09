@@ -66,3 +66,12 @@ export interface GameState {
     castlingRights: CastlingRights;
     enPassantTarget: Position | null;
 }
+export const createInitialGameState = (): GameState => ({
+    board: createInitialBoard(),
+    turn: 'white',
+    castlingRights: {
+        white: { kingside: true, queenside: true },
+        black: { kingside: true, queenside: true }
+    },
+    enPassantTarget: null
+});
