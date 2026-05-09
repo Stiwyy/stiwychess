@@ -109,6 +109,34 @@ export const getPseudoLegalMoves = (board: BoardState, from: Position): Position
     return moves;
 }
 
+export const getLegalMoves = (board: BoardState, from: Position): Position[] => {
+    const piece = board[from.row][from.col];
+    if (!piece) return [];
+
+    const pseudoMoves = getPseudoLegalMoves(board, from);
+    const validMoves: Position[] = [];
+    const opponentColor = piece.color === 'white' ? 'black' : 'white';
+
+    // Would king be in check if piece were to be moved
+    for (const move of pseudoMoves) {
+        const ghostBoard = board.map(row => [...row]);
+
+        // simulate move
+        ghostBoard[move.row][move.col] = ghostBoard[from.row][from.col];
+        ghostBoard[from.row][from.col] = null;
+
+        const kingPos = findKing(ghostBoard, piece.color);
+
+        // is king attacked now
+        if (kingPos && !isSquareAttacked(ghostBoard, kingPos, opponentColor)) {
+            // if no, its legal
+            validMoves.push(move);
+        }
+    }
+
+    return validMoves;
+};
+
 const findKing = (board: BoardState, color: Color): Position | null => {
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
