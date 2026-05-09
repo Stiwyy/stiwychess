@@ -188,7 +188,7 @@ export const getGameStateStatus = (state: GameState): 'active' | 'checkmate' | '
     return 'stalemate';
 };
 
-const findKing = (board: BoardState, color: Color): Position | null => {
+export const findKing = (board: BoardState, color: Color): Position | null => {
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const piece = board[r][c];

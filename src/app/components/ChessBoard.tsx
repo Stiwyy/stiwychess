@@ -6,7 +6,7 @@ import {GameState, createInitialGameState, Position, PieceType} from "@/app/type
 import Pieces from "@/app/components/Pieces";
 import Settings from "@/app/components/Settings";
 import { executeMove } from "@/app/utils/board";
-import {getGameStateStatus, getLegalMoves} from "@/app/utils/moves";
+import {getGameStateStatus, getLegalMoves, findKing, isSquareAttacked} from "@/app/utils/moves";
 import Image from "next/image";
 
 
@@ -14,6 +14,13 @@ interface PendingPromotion {
     from: Position;
     to: Position;
 }
+
+const playSound = (type: 'Move' | 'Capture' | 'Check' | 'Checkmate' | 'Castle') => {
+    if (typeof window !== 'undefined') {
+        const audio = new Audio(`/sound/${type}.mp3`);
+        audio.play().catch(e => console.log("Audio play failed:", e));
+    }
+};
 
 export default function ChessBoard() {
     const [gameState, setGameState] = useState<GameState>(createInitialGameState());
@@ -50,6 +57,13 @@ export default function ChessBoard() {
         if (isLegalMove) {
             const piece = gameState.board[selectedSquare.row][selectedSquare.col];
 
+            const targetSquarePiece = gameState.board[row][col];
+            const isEnPassant = piece?.type === 'pawn' &&
+                gameState.enPassantTarget?.row === row &&
+                gameState.enPassantTarget?.col === col;
+            const isCapture = targetSquarePiece !== null || isEnPassant;
+            const isCastle = piece?.type === 'king' && Math.abs(col - selectedSquare.col) === 2;
+
             // Promotion Check
             if (piece?.type === 'pawn' && (row === 0 || row === 7)) {
                 setPendingPromotion({ from: selectedSquare, to: { row, col } });
@@ -60,7 +74,7 @@ export default function ChessBoard() {
 
             // normal move
             const newGameState = executeMove(gameState, selectedSquare, { row, col });
-            setGameState(newGameState);
+            finishMove(newGameState, isCapture, isCastle);
             setSelectedSquare(null);
             setLegalMoves([]);
         } else {
@@ -71,8 +85,14 @@ export default function ChessBoard() {
 
     const handlePromotionChoice = (type: PieceType) => {
         if (!pendingPromotion) return;
+
+        const targetSquarePiece = gameState.board[pendingPromotion.to.row][pendingPromotion.to.col];
+        const isCapture = targetSquarePiece !== null;
+
         const newGameState = executeMove(gameState, pendingPromotion.from, pendingPromotion.to, type);
-        setGameState(newGameState);
+
+        finishMove(newGameState, isCapture);
+
         setPendingPromotion(null);
     };
 
@@ -80,6 +100,29 @@ export default function ChessBoard() {
         const colorChar = gameState.turn === 'white' ? 'w' : 'b';
         const typeMap: Record<string, string> = { queen: 'Q', rook: 'R', knight: 'N', bishop: 'B' };
         return `/piece/${theme}/${colorChar}${typeMap[type]}.svg`;
+    };
+
+    const finishMove = (newGameState: GameState, isCapture: boolean, isCastle: boolean = false) => {
+        setGameState(newGameState);
+
+        const status = getGameStateStatus(newGameState);
+        if (status === 'checkmate') {
+            playSound('Checkmate');
+        } else {
+            const nextTurnColor = newGameState.turn;
+            const kingPos = findKing(newGameState.board, nextTurnColor);
+            const inCheck = kingPos && isSquareAttacked(newGameState.board, kingPos, nextTurnColor === 'white' ? 'black' : 'white');
+
+            if (inCheck) {
+                playSound('Check');
+            } else if (isCapture) {
+                playSound('Capture');
+            } else if (isCastle) {
+                playSound('Castle')
+            } else {
+                playSound('Move');
+            }
+        }
     };
 
     return (
