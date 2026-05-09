@@ -1,17 +1,27 @@
-import { useState } from "react";
 import {BoardState} from "@/app/types/chess";
+import Piece from "@/app/components/Piece";
 
+interface PiecesProps {
+    board: BoardState;
+}
 
-const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
-
-export default function Pieces(){
-    const [board, setBoard] = useState<BoardState>(() => {
-        const initialBoard: BoardState = Array(8).fill(null).map(() => Array(8).fill(null));
-        return initialBoard;
-    });
-
+export default function Pieces({board}: PiecesProps){
     return(
+        <div className="absolute inset-0 pointer-events-none">
+            {board.map((row, rowIndex) =>
+                row.map((piece, colIndex) => {
+                    if (!piece) return null;
 
-    )
+                    return (
+                        <Piece
+                            key={`piece-${piece.color}-${piece.type}-${rowIndex}-${colIndex}`}
+                            piece={piece}
+                            row={rowIndex}
+                            col={colIndex}
+                        />
+                    );
+                })
+            )}
+        </div>
+    );
 }
