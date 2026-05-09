@@ -108,3 +108,15 @@ export const getLegalMoves = (board: BoardState, from: Position): Position[] => 
     }
     return moves;
 }
+
+const findKing = (board: BoardState, color: Color): Position | null => {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = board[r][c];
+            if (piece && piece.type === 'king' && piece.color === color) {
+                return { row: r, col: c };
+            }
+        }
+    }
+    return null;
+};
