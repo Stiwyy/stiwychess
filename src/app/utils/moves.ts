@@ -1,4 +1,4 @@
-import {BoardState, Color, GameState, Position} from "@/app/types/chess";
+import {BoardState, Color, GameState, Position, serializeBoard} from "@/app/types/chess";
 
 const isWithinBoard = (row: number, col: number) => row >= 0 && row < 8 && col >= 0 && col < 8;
 
@@ -158,10 +158,34 @@ export const getLegalMoves = (state: GameState, from: Position): Position[] => {
     return validMoves;
 };
 
+const hasInsufficientMaterial = (board: BoardState): boolean => {
+    const pieces: {type: string, color: string}[] = [];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const p = board[r][c];
+            if (p) pieces.push({type: p.type, color: p.color});
+        }
+    }
 
-export const getGameStateStatus = (state: GameState): 'active' | 'checkmate' | 'stalemate' => {
+    if (pieces.length === 2) return true;
+    if (pieces.length === 3 && pieces.some(p => p.type === 'knight' || p.type === 'bishop')) return true;
+    return false;
+};
+
+export const getGameStateStatus = (state: GameState): 'active' | 'checkmate' | 'stalemate' | 'draw_50' | 'draw_repetition' | 'draw_material' => {
     const currentPlayer = state.turn;
     const opponent = currentPlayer === 'white' ? 'black' : 'white';
+
+    // Insufficient Material
+    if (hasInsufficientMaterial(state.board)) return 'draw_material';
+
+    // 100 moves without pawn move or capture
+    if (state.halfMoveClock >= 100) return 'draw_50';
+
+    // draw by repetition
+    const currentPos = serializeBoard(state.board);
+    const repetitions = state.positionHistory.filter(pos => pos === currentPos).length;
+    if (repetitions >= 3) return 'draw_repetition';
 
     // Check if current player has ANY legal moves
     let hasMoves = false;
