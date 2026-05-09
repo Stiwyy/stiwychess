@@ -30,7 +30,7 @@ const getSlidingMoves = (board: BoardState, from: Position, color:Color, directi
     return moves;
 };
 
-export const getLegalMoves = (board: BoardState, from: Position): Position[] => {
+export const getPseudoLegalMoves = (board: BoardState, from: Position): Position[] => {
     const piece = board[from.row][from.col];
     if (!piece) return [];
 
@@ -119,4 +119,20 @@ const findKing = (board: BoardState, color: Color): Position | null => {
         }
     }
     return null;
+};
+
+export const isSquareAttacked = (board: BoardState, pos: Position, attackerColor: Color): boolean => {
+    // for every opponent piece, we check which squares are attacked.
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = board[r][c];
+            if (piece && piece.color === attackerColor) {
+                const moves = getPseudoLegalMoves(board, { row: r, col: c });
+                if (moves.some(m => m.row === pos.row && m.col === pos.col)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 };
